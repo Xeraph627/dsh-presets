@@ -12,8 +12,9 @@
 # 2. 工具面。schema 每次请求都要重发，所以提示词变小之后，工具面成为主要开销。
 #    这里只挂 7 个工具（读写文件、检索、联网、终端、后台任务），并改用**持久** shell：
 #    持久行支持覆写 `description`（自带默认值很长），它的 schema 也只有一个 command
-#    参数、没有 sandbox 升级字段。输出上限在工具层收窄——出厂默认的
-#    `fetchMaxOutputChars` 是 200,000 字符，比本地模型的整个窗口还大。
+#    参数、没有 sandbox 升级字段。输出上限在工具层收窄，网络面也收窄：`fetch: false`
+#    让 `web_fetch` 根本不注册（不设它的话出厂 `fetchMaxOutputChars` 是 200,000 字符，
+#    比本地模型的整个窗口还大）。
 #
 # 3. 继承来的全局工具。宿主层挂载的工具对每个 agent 都可见，与预设无关；在作者的
 #    机器上实测有 19 个工具，其中 6 个 ssh_* 与 load_workspace_dependencies 与本预设
@@ -57,12 +58,15 @@
   config:
     sampleOverCapGlobResults: false
 
+# 只挂 web_search，不挂 web_fetch：本预设的用途是本地小模型的编码与检索，检索用
+# 服务端检索就够了，不需要把「请求哪个 URL」这件事交给模型。fetch 关掉同时少掉
+# 这一件工具的 schema。
 - id: tool-web
   name: '@deepseek-ai/dsh-tool-web'
   config:
+    fetch: false
     searchMaxResults: 5
     searchMaxQueries: 2
-    fetchMaxOutputChars: 24000
 
 - id: shell
   name: cordis:group
