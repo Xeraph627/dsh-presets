@@ -22,8 +22,10 @@
 #    预设的 scope 上摘掉，名单从实时全局视图**算出**而非写死（restrict() 遇到未知
 #    工具名会抛错，写死的名单一旦 profile 变化就会反过来让预设挂不上）。
 #
-# 实测（Windows / lm-studio qwen3.5-9b 32k 窗口）：系统提示词 186 token、
-# 工具 schema 约 1,818 token，合计约 2,004 token，相比标准预设的约 9,288 降低 78%。
+# 实测（Windows / lm-studio、32k 窗口）：系统提示词 257 字符（247 字符的 persona 加一行
+# 工作目录）/ 190 token，工具 schema 11 个 / 1,599 token，合计约 1,789 token。
+# 对照：同一台机器上 `tool-surface` 未生效时是 3,155 token（19 个工具），
+# 另一条路由上的自带 standard 预设约 9,288 token（不同机器状态，仅作量级参照）。
 #
 # 不带 plan 模式：它的 plan:policy 段落约 1,000 token 常驻系统提示词且无法缩短；
 # 而且 `complete: true` 的 persona 与它会构成两个 complete 段，assembly 会直接失败。
