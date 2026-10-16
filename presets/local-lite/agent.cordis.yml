@@ -18,14 +18,19 @@
 #
 # 3. 继承来的全局工具。宿主层挂载的工具对每个 agent 都可见，与预设无关；在作者的
 #    机器上实测有 19 个工具，其中 6 个 ssh_* 与 load_workspace_dependencies 与本预设
-#    无关却占了约 1,249 token。`tool-surface` 行用 ctx.tools.restrict() 把它们从这个
-#    预设的 scope 上摘掉，名单从实时全局视图**算出**而非写死（restrict() 遇到未知
-#    工具名会抛错，写死的名单一旦 profile 变化就会反过来让预设挂不上）。
+#    无关却占了约 1,249 token（`tool-surface` 生效时它们不在 wire 上，这一对会话的
+#    固定开销差是 1,151 token）。`tool-surface` 行用 ctx.tools.restrict() 把它们从
+#    这个预设的 scope 上摘掉，名单从实时全局视图**算出**而非写死（restrict() 遇到
+#    未知工具名会抛错，写死的名单一旦 profile 变化就会反过来让预设挂不上）。
+#    同一台机器上这一项收益从 1,151 到 1,366 token 不等，取决于对照会话是哪两个 ——
+#    摘掉的是宿主挂的东西，所以**只有预设自身的成本才是稳定的那个数**。
 #
-# 实测（Windows / lm-studio、32k 窗口）：系统提示词 257 字符（247 字符的 persona 加一行
-# 工作目录）/ 190 token，工具 schema 11 个 / 1,599 token，合计约 1,789 token。
-# 对照：同一台机器上 `tool-surface` 未生效时是 3,155 token（19 个工具），
+# 实测（Windows / lm-studio、32k 窗口，native 呈现）：系统提示词 257 字符（247 字符的
+# persona 加一行工作目录）/ 190 token，工具 schema 11 个 / 1,599 token，合计约 1,789
+# token。对照：同一台机器上 `tool-surface` 未生效时是 3,155 token（19 个工具）；
 # 另一条路由上的自带 standard 预设约 9,288 token（不同机器状态，仅作量级参照）。
+# PTC 部署（`tools` 行 mode: both）下实测 13 个工具 / 2,479 token，`run_code` 在 wire
+# 上而继承来的全局工具仍被摘掉 —— 保留名过滤那条修复的真机验证。
 #
 # 不带 plan 模式：它的 plan:policy 段落约 1,000 token 常驻系统提示词且无法缩短；
 # 而且 `complete: true` 的 persona 与它会构成两个 complete 段，assembly 会直接失败。
