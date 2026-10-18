@@ -32,10 +32,12 @@
  *
  * `run_code` MUST be filtered out of the deny list: with the deployment's `tools`
  * row in `ptc` or `both` mode the global view carries that reserved PTC
- * transport name, and `restrict()` refuses it. Measured with
- * `tools/mutation-check.mjs`: leaving the name in loses the ENTIRE mask, and the
- * retry cannot recover it — the retry drops only caller-named `alsoDeny` entries,
- * so a computed `run_code` survives into it as well.
+ * transport name, and `restrict()` refuses it. Leaving the name in loses the
+ * ENTIRE mask, and the retry cannot recover it — the retry drops only
+ * caller-named `alsoDeny` entries, so a computed `run_code` survives into it as
+ * well. Verified two ways: by mutation against this source, and on a live host
+ * whose `tools` row was set to `mode: both` (13 tools on the wire, `run_code`
+ * among them, every inherited global still masked).
  *
  * The filter appears twice on purpose (the loop skip and the trailing
  * `deny.delete`), and either alone is sufficient — the mutation check removes
