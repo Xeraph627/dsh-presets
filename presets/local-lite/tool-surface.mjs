@@ -51,17 +51,25 @@
  * preset whose surface could not be trimmed still composes — it just pays the
  * tokens.
  *
- * Measured on the author's deployment, native presentation: the preset's own
- * standing cost was about 2,004 tokens per request, against 3,155 with this row
- * not running — so the mask removed about 1,151 tokens, the six `ssh_*` controls
- * plus `load_workspace_dependencies` on that host (about 1,249 for those tools
- * themselves, the rest of the gap being the `web_fetch` schema the preset also
- * stopped registering).
+ * Measured on the author's deployment, native presentation. The saving comes from
+ * ONE matched pair of sessions — both with `web_fetch` still enabled, byte-identical
+ * prompts, the same host surface — differing only in whether this row ran:
  *
- * Those figures are historical and profile-dependent by nature: the row can only
- * remove tools the host mounted, so a plain harness — where the only inherited
- * global is `load_workspace_dependencies` — sees a far smaller saving. Treat the
- * preset's own cost as the stable number and this saving as a per-host one.
+ *   this row running      2,004 tokens/request  (186-char prompt + 1,818, 13 tools)
+ *   this row not running  3,155 tokens/request  (same prompt + 2,969, 19 tools)
+ *   difference            1,151 tokens          what the mask removed on that host
+ *
+ * That 1,151 is the host's six `ssh_*` controls plus
+ * `load_workspace_dependencies`, and it is the only subtraction these two sessions
+ * support. The preset's own standing cost is a separate figure, and the stable
+ * one: 1,789 tokens per request with `web_fetch` off (190-char prompt + 1,599,
+ * 11 tools). Do not subtract the pair and call the result the preset's cost, and
+ * do not pair 1,151 with a per-tool total quoted elsewhere — only a difference
+ * between two sessions describes a saving.
+ *
+ * The saving is per-host by nature: the row can only remove tools the host
+ * mounted, so a plain harness — where the only inherited global is
+ * `load_workspace_dependencies` — sees a far smaller one.
  *
  * @module tool-surface
  */
